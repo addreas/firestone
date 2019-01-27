@@ -1,13 +1,7 @@
 defmodule FirestoneTest do
-  use ExUnit.Case
-  doctest Firestone
+  use ExUnit.Case, async: true
 
-  test "greets the world" do
-    assert Firestone.hello() == :world
-  end
+  doctest Firestone, import: true
 
-  test "creates the game" do
-    assert Firestone.Agent.update(:create_game) == [:game]
-    assert Firestone.Agent.update(:end_turn) == [:end_turn, :game]
-  end
+  doctest Firestone.Engine.State, import: true
 end

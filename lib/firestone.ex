@@ -33,18 +33,18 @@ defmodule Firestone do
       |> Firestone.Engine.Events.end_turn
 
     #Check win/loss/draw
-      |> Firestone.Engine.Predicates.is_end_game?
+      |> Firestone.Engine.Predicates.end_game?
 
     #Start of turn phase
       |> Firestone.Engine.Events.start_turn
 
     #Check win/loss/draw
-      |> Firestone.Engine.Predicates.is_end_game?
+      |> Firestone.Engine.Predicates.end_game?
 
     #Draw card phase
       |> Firestone.Engine.Actions.draw_card
 
     #Check win/loss/draw
-      |> Firestone.Engine.Predicates.is_end_game?
+      |> Firestone.Engine.Predicates.end_game?
   end
 end

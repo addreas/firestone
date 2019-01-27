@@ -18,8 +18,8 @@ defmodule Firestone.Engine.State do
       |> update_in([:counter], &(&1 + 1))
   end
 
-  def add_player_entity_list state, player_id, type, data_list do
-    entities = for {data, c} <- Enum.with_index(data_list, state.counter) do
+  def add_player_entity_list state, player_id, type, list do
+    entities = for {data, c} <- Enum.with_index(list, state.counter) do
       Firestone.Engine.Entities.create data, type, c
     end
 
@@ -40,11 +40,49 @@ defmodule Firestone.Engine.State do
     end
   end
 
+  def add_turn_entity_list state, key, list do
+    entities = for {data, c} <- Enum.with_index(list, state.counter) do
+      Firestone.Engine.Entities.create data, key, c
+    end
+
+    state
+      |> update_in([:turn, key], &( entities ++ &1 ))
+      |> update_in([:counter], &(&1 + length(entities)))
+  end
+
+  def add_turn_data state, data do
+    for {key, val} <- data, reduce: state do
+      state -> cond do
+        key in [:cards_played, :minions_summoned] -> add_turn_entity_list state, key, val
+        true -> put_in state.turn[key], val
+      end
+    end
+  end
+
+  def add_data state, data do
+    for {key, val} <- data, reduce: state do
+      state -> cond do
+        key in [:turn] -> add_turn_data state, val
+        true -> put_in state[key], val
+      end
+    end
+  end
+
   @doc """
 
-  Minion shorthands work:
-      iex> create_game [%{minions: ["Imp", %{game_id: "EX1_598"}, %{name: "Imp"}]}]
-      create_game [%{minions: ["Imp", "Imp", "Imp"]}]
+  Top level keys work:
+      iex> create_game([], current_player: :p2).current_player
+      :p2
+
+      iex> create_game([], turn: %{cards_played: ["Imp"]}).turn.cards_played
+      ...> |> Enum.at(0)
+      ...> |> Map.get(:game_id)
+      "EX1_598"
+
+
+  Board shorthands work:
+      iex> create_game [%{board: ["Imp", %{game_id: "EX1_598"}, %{name: "Imp"}]}]
+      create_game [%{board: ["Imp", "Imp", "Imp"]}]
 
   Hand shorthands work:
       iex> create_game [%{hand: ["Imp", %{game_id: "EX1_598"}, %{name: "Imp"}]}]
@@ -55,33 +93,58 @@ defmodule Firestone.Engine.State do
       create_game [%{deck: ["Imp", "Imp", "Imp"]}]
 
   Creates the state:
-      iex> create_game []
+      iex> create_game [%{ fatigue: 1 }, %{ fatigue: 2 }]
       %{
+        counter: 0,
         current_player: :p1,
+        turn: %{cards_played: [], minions_summoned: []},
         players: %{
-          p1: %{},
-          p2: %{},
-        }
+          p1: %{
+            board: [],
+            deck: [],
+            fatigue: 1,
+            graveyard: [],
+            hand: [],
+            hero: %{game_id: "HERO_05", id: "herop1", name: "Rexxar"}
+          },
+          p2: %{
+            board: [],
+            deck: [],
+            fatigue: 2,
+            graveyard: [],
+            hand: [],
+            hero: %{game_id: "HERO_05", id: "herop2", name: "Rexxar"}
+          }
+        },
       }
+
 
   """
   def create_game, do: create_game []
 
-  def create_game [] do create_game [%{}, %{}] end
 
-  def create_game [p1] do create_game [p1, %{}] end
+  def create_game players, data \\ []
 
-  def create_game [p1, p2] do
+  def create_game [], data do
+    create_game [%{}, %{}], data
+  end
+
+  def create_game [p1], data do
+    create_game [p1, %{}], data
+  end
+
+  def create_game [p1, p2], data do
     %{
       current_player: :p1,
       counter: 0,
-      players: %{},
       turn: %{
         cards_played: [],
         minions_summoned: []
       },
+      players: %{},
     }
     |> add_player_data(:p1, p1)
     |> add_player_data(:p2, p2)
+    |> add_data(data)
   end
 end
