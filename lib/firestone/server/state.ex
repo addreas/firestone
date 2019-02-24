@@ -1,4 +1,4 @@
-defmodule Firestone.Server.Agent do
+defmodule Firestone.Server.State do
   use Agent
 
   def start_link(_) do
