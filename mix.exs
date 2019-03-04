@@ -15,7 +15,7 @@ defmodule Firestone.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {Firestone.Application, []}
+      mod: {Firestone.Server.Application, []}
     ]
   end
 
