@@ -1,50 +1,65 @@
 defmodule Firestone do
-  def create_game do
-    create_game []
+  def create_game(players \\ [], data \\ []) do
+    [Firestone.Engine.State.create_game(players, data)]
   end
 
-  def create_game data do
-    [Firestone.Engine.State.create_game data]
+  def play_spell([state | _]) do
+    [state]
   end
 
-  def play_spell states do
+  def play_minion([state | _]) do
+    [state]
+  end
+
+  def attack([state | _]) do
+    [state]
+  end
+
+  def hero_power([state | _]) do
+    [state]
+  end
+
+  def choose([state | _]) do
+    [state]
+  end
+
+  @doc """
+  Mana is properly increased:
+      iex> [Firestone.create_game([%{mana: 5, max_mana: 10}])]
+      ...> |> end_turn()
+      ...> |> Firestone.State.mana(:p1)
+      6
+
+      iex> [Firestone.create_game([%{mana: 10, max_mana: 10}])]
+      ...> |> end_turn()
+      ...> |> Firestone.State.mana(:p1)
+      10
+
+  Structs are emptied:
+      iex> [Firestone.create_game([], turn: %{cards_played: ["Imp"]})]
+      ...> |> start_turn()
+      ...> |> Firestone.State.cards_played()
+      []
+
+  """
+  def end_turn(states) do
+    # End of turn phase
     states
-  end
+    |> Firestone.Engine.Triggers.end_turn()
 
-  def play_minion states do
-    states
-  end
+    # Check win/loss/draw
+    |> Firestone.Engine.Predicates.end_game?()
 
-  def attack states do
-    states
-  end
+    # Start of turn phase
+    |> Firestone.Engine.Triggers.start_turn()
 
-  def hero_power states do
-    states
-  end
+    # Check win/loss/draw
+    |> Firestone.Engine.Predicates.end_game?()
 
-  def choose states do
-    states
-  end
+    # Draw card phase
+    |> Firestone.Engine.Actions.draw_card()
 
-  def end_turn states do
-    #End of turn phase
-    states
-      |> Firestone.Engine.Events.end_turn
-
-    #Check win/loss/draw
-      |> Firestone.Engine.Predicates.end_game?
-
-    #Start of turn phase
-      |> Firestone.Engine.Events.start_turn
-
-    #Check win/loss/draw
-      |> Firestone.Engine.Predicates.end_game?
-
-    #Draw card phase
-      |> Firestone.Engine.Actions.draw_card
-
-    #Check win/loss/draw
-      |> Firestone.Engine.Predicates.end_game?
+    # Check win/loss/draw
+    |> Firestone.Engine.Predicates.end_game?()
   end
 end
