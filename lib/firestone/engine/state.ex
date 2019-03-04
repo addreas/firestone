@@ -157,8 +157,18 @@ defmodule Firestone.Engine.State do
     |> add_data(data)
   end
 
-  def player(state, player_id), do: get_in(state, [:players, player_id])
-  def mana(state, player_id), do: get_in(state, [:players, player_id, :mana])
+  def player(state, player_id, key),
+    do: get_in(state, [:players, player_id, key])
 
-  def cards_played(state), do: get_in(state, [:turn, :cards_played])
+  def player(state, player_id, key, function) when is_function(function),
+    do: update_in(state, [:players, player_id, key], function)
+
+  def player(state, player_id, key, value),
+    do: put_in(state, [:players, player_id, key], value)
+
+  def cards_played(state),
+    do: get_in(state, [:turn, :cards_played])
+
+  def minions_summoned(state),
+    do: get_in(state, [:turn, :minions_summoned])
 end
