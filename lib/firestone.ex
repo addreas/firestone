@@ -37,7 +37,7 @@ defmodule Firestone do
 
   Structs are emptied:
       iex> [Firestone.create_game([], turn: %{cards_played: ["Imp"]})]
-      ...> |> start_turn()
+      ...> |> end_turn()
       ...> |> Firestone.State.cards_played()
       []
 

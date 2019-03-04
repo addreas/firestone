@@ -10,9 +10,18 @@ defmodule Firestone.Server.Application do
     children = [
       # Starts a worker by calling: Firestone.Worker.start_link(arg)
       # {Firestone.Worker, arg},
-      Firestone.Server.Agent,
-      {Plug.Cowboy, scheme: :http, plug: Firestone.Server.Plug, options: [port: 8080]}
+      Firestone.Server.State
     ]
+
+    children =
+      if Application.get_env(:firestone, :enable_cowboy) do
+        [
+          {Plug.Cowboy, scheme: :http, plug: Firestone.Server.Plug, options: [port: 8080]}
+          | children
+        ]
+      else
+        children
+      end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
