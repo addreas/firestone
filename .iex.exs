@@ -1,1 +1,1 @@
-import Firestone.Engine.State
+import_if_available(Firestone.Engine.State)
