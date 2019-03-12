@@ -36,6 +36,8 @@ defmodule Firestone.Engine.State do
             fatigue: 1,
             graveyard: [],
             hand: [],
+            mana: 0,
+            mana_crystals: 0,
             hero: %{game_id: "HERO_05", id: "herop1", name: "Rexxar"}
           },
           p2: %{
@@ -44,6 +46,8 @@ defmodule Firestone.Engine.State do
             fatigue: 2,
             graveyard: [],
             hand: [],
+            mana: 0,
+            mana_crystals: 0,
             hero: %{game_id: "HERO_05", id: "herop2", name: "Rexxar"}
           }
         },
@@ -89,10 +93,29 @@ defmodule Firestone.Engine.State do
     }
   end
 
-  def add_player_data(state, player_id, data) do
-    initial_player = put_in(state.players[player_id], default_player(player_id))
+  @doc """
+  Adding hero
+      iex> create_game()
+      ...> |> add_player_data(:p1, %{hero: "Rexxar"})
+      ...> |> get_in([:players, :p1, :hero, :name])
+      "Rexxar"
 
-    for {key, val} <- data, reduce: initial_player do
+  Adding board item
+      iex> create_game()
+      ...> |> add_player_data(:p1, %{board: ["Imp"]})
+      ...> |> get_in([:players, :p1, :board])
+      ...> |> Enum.map(& &1.name)
+      ["Imp"]
+
+  Adding other key
+      iex> create_game()
+      ...> |> add_player_data(:p1, %{mana: 5})
+      ...> |> get_in([:players, :p1, :mana])
+      5
+
+  """
+  def add_player_data(state, player_id, data) do
+    for {key, val} <- data, reduce: state do
       state ->
         cond do
           key in [:hero] ->
@@ -136,6 +159,20 @@ defmodule Firestone.Engine.State do
     end
   end
 
+  @doc """
+  Cards played
+      iex> create_game()
+      ...> |> add_turn_data(cards_played: ["Imp"])
+      ...> |> get_in([:turn, :cards_played])
+      ...> |> Enum.map(& &1.name)
+      ["Imp"]
+
+  Arbitrary value
+      iex> create_game()
+      ...> |> add_turn_data(arbitrary_key: :arbitrary_value)
+      ...> |> get_in([:turn, :arbitrary_key])
+      :arbitrary_value
+  """
   def add_turn_data(state, data) do
     for {key, val} <- data, reduce: state do
       state ->
@@ -157,18 +194,55 @@ defmodule Firestone.Engine.State do
     |> update_in([:counter], &(&1 + length(entities)))
   end
 
+  @doc """
+  Seems to work
+      iex> create_game()
+      ...> |> player(:p1, :graveyard)
+      []
+  """
   def player(state, player_id, key),
     do: get_in(state, [:players, player_id, key])
 
-  def player(state, player_id, key, function) when is_function(function),
+  @doc """
+  Seems to work
+      iex> create_game([%{mana: 2}])
+      ...> |> update_player(:p1, :mana, & &1 + 1)
+      ...> |> player(:p1, :mana)
+      3
+
+  Seems to work
+      iex> create_game([%{mana: 2}])
+      ...> |> update_player(:p1, :mana, 5)
+      ...> |> player(:p1, :mana)
+      5
+  """
+  def update_player(state, player_id, key, function) when is_function(function),
     do: update_in(state, [:players, player_id, key], function)
 
-  def player(state, player_id, key, value),
+  def update_player(state, player_id, key, value),
     do: put_in(state, [:players, player_id, key], value)
 
+  @doc """
+  Seems to work
+      iex> create_game()
+      ...> |> cards_played()
+      []
+  """
   def cards_played(state),
     do: get_in(state, [:turn, :cards_played])
 
+  def reset_cards_played(state),
+    do: put_in(state, [:turn, :cards_played], [])
+
+  @doc """
+  Seems to work
+      iex> create_game()
+      ...> |> minions_summoned()
+      []
+  """
   def minions_summoned(state),
     do: get_in(state, [:turn, :minions_summoned])
+
+  def reset_minions_summoned(state),
+    do: put_in(state, [:turn, :minions_summoned], [])
 end
