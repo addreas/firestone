@@ -1,8 +1,8 @@
 defmodule Firestone.Server.Plug do
   use Plug.Router
 
-  plug :match
-  plug :dispatch
+  plug(:match)
+  plug(:dispatch)
 
   def send_json(conn, data) do
     conn
@@ -14,15 +14,27 @@ defmodule Firestone.Server.Plug do
     send_json(conn, "Welcome")
   end
 
+  get "/endTurn" do
+    send_json(conn, "Welcome")
+  end
+
+  get "/attack" do
+    # %{attackerId: attacker_id, targetId: target_id} = params
+    send_json(conn, "Welcome")
+  end
+
   get "/playMinionCard" do
+    # %{cardId: card_id, targetId: target_id, position: position} = params
     send_json(conn, "Welcome")
   end
 
   get "/playSpellCard" do
+    # %{cardId: card_id, targetId: target_id} = params
     send_json(conn, "Welcome")
   end
 
-  get "/endTurn" do
+  get "/useHeroPower" do
+    # %{targetId: target_id} = params
     send_json(conn, "Welcome")
   end
 

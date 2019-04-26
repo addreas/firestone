@@ -237,6 +237,41 @@ defmodule Firestone.Engine.State do
   @doc """
   Seems to work
       iex> create_game()
+      ...> |> current_player()
+      :p1
+
+      iex> create_game([], current_player: :p2)
+      ...> |> current_player()
+      :p2
+  """
+  def current_player(state),
+    do: state.current_player
+
+  @doc """
+  Seems to work
+      iex> create_game()
+      ...> |> swap_current_player()
+      ...> |> current_player()
+      :p2
+
+      iex> create_game([], current_player: :p2)
+      ...> |> swap_current_player()
+      ...> |> current_player()
+      :p1
+  """
+  def swap_current_player(state),
+    do:
+      put_in(
+        state.current_player,
+        case current_player(state) do
+          :p1 -> :p2
+          :p2 -> :p1
+        end
+      )
+
+  @doc """
+  Seems to work
+      iex> create_game()
       ...> |> minions_summoned()
       []
   """
