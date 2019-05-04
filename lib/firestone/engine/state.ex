@@ -7,7 +7,7 @@ defmodule Firestone.Engine.State do
 
   Turn specific values work:
       iex> create_game([], turn: %{cards_played: ["Imp"]}).turn.cards_played
-      ...> |> Enum.at(0)
+      ...> |> List.first()
       ...> |> Map.get(:game_id)
       "EX1_598"
 
@@ -199,6 +199,10 @@ defmodule Firestone.Engine.State do
       iex> create_game()
       ...> |> player(:p1, :graveyard)
       []
+
+      iex> create_game()
+      ...> |> player(:p1, :hero)
+      %{game_id: "HERO_05", id: "herop1", name: "Rexxar"}
   """
   def player(state, player_id, key),
     do: get_in(state, [:players, player_id, key])

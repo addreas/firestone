@@ -16,4 +16,13 @@ defmodule Firestone.Engine.Entities do
     %{health: health} = Firestone.Definition.Entities.get(%{game_id: game_id})
     health - damage_taken
   end
+
+  def health(%{game_id: game_id}) do
+    Firestone.Definition.Entities.get(%{game_id: game_id}).health
+  end
+
+  def health(entity) do
+    IO.inspect(entity)
+    raise "Invalid entity: #{inspect(entity)}"
+  end
 end
