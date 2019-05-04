@@ -50,23 +50,24 @@ defmodule Firestone do
       []
   """
   def end_turn(states) do
-    [turn_ended | states] = Triggers.end_turn(states)
+    turn_ended = Triggers.end_turn(states)
 
     if Predicates.end_game?(turn_ended) do
       raise "game ended"
     end
 
-    mana_crystals = State.player(turn_ended, turn_ended.current_player, :mana_crystals)
+    current_player = State.current_player(turn_ended)
+    mana_crystals = State.player(turn_ended, current_player, :mana_crystals)
 
-    reset_turn =
+    next_turn =
       turn_ended
       |> State.update_player(
-        turn_ended.current_player,
+        current_player,
         :mana,
         mana_crystals
       )
       |> State.update_player(
-        turn_ended.current_player,
+        current_player,
         :mana_crystals,
         fn mana ->
           min(10, mana + 1)
@@ -75,21 +76,18 @@ defmodule Firestone do
       |> State.reset_cards_played()
       |> State.reset_minions_summoned()
       |> State.swap_current_player()
+      |> Triggers.start_turn()
 
-    # Start of turn phase
-    [turn_started | states] = Triggers.start_turn([reset_turn, turn_ended | states])
-
-    if Predicates.end_game?(turn_started) do
+    if Predicates.end_game?(next_turn) do
       raise "game ended"
     end
 
-    # Draw card phase
-    [card_drawn | states] = Actions.draw_card([turn_started | states])
+    card_drawn = Actions.draw_card(next_turn)
 
     if Predicates.end_game?(card_drawn) do
       raise "game ended"
     end
 
-    [card_drawn | states]
+    card_drawn
   end
 end

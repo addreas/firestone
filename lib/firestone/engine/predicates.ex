@@ -15,6 +15,8 @@ defmodule Firestone.Engine.Predicates do
       ...> end_game?(state)
       true
   """
+  def end_game?([state | _]), do: end_game?(state)
+
   def end_game?(%{players: %{p1: p1, p2: p2}}) do
     dead?(p1.hero) or dead?(p2.hero)
   end
