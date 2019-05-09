@@ -3,6 +3,8 @@ defmodule FirestoneTest do
 
   alias Firestone.Engine.{State, Entities, Predicates, Actions}
 
+  doctest Firestone.Definition.Entities, import: true
+
   doctest Firestone, import: true
   doctest Firestone.Engine.State, import: true
   doctest Firestone.Engine.Predicates, import: true

@@ -12,6 +12,10 @@ defmodule Firestone.Engine.Entities do
     )
   end
 
+  def add_damage(entity, amount) do
+    Map.update(entity, :damage_taken, 0, &(&1 + amount))
+  end
+
   def health(%{game_id: game_id, damage_taken: damage_taken}) do
     %{health: health} = Firestone.Definition.Entities.get(%{game_id: game_id})
     health - damage_taken
@@ -22,7 +26,6 @@ defmodule Firestone.Engine.Entities do
   end
 
   def health(entity) do
-    IO.inspect(entity)
     raise "Invalid entity: #{inspect(entity)}"
   end
 end
