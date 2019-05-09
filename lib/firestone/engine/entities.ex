@@ -13,9 +13,24 @@ defmodule Firestone.Engine.Entities do
   end
 
   def add_damage(entity, amount) do
-    Map.update(entity, :damage_taken, 0, &(&1 + amount))
+    Map.update(entity, :damage_taken, amount, &(&1 + amount))
   end
 
+  @doc """
+  Seems to work
+      iex> create("Imp", :hand, "some_id")
+      ...> |> health()
+      1
+
+      iex> create("Imp", :hand, "some_id")
+      ...> |> add_damage(1)
+      ...> |> health()
+      0
+
+      iex> health(:NOT_AN_ENTITY)
+      ** (ArgumentError) Invalid entity: :NOT_AN_ENTITY
+
+  """
   def health(%{game_id: game_id, damage_taken: damage_taken}) do
     %{health: health} = Firestone.Definition.Entities.get(%{game_id: game_id})
     health - damage_taken
@@ -26,6 +41,6 @@ defmodule Firestone.Engine.Entities do
   end
 
   def health(entity) do
-    raise "Invalid entity: #{inspect(entity)}"
+    raise ArgumentError, message: "Invalid entity: #{inspect(entity)}"
   end
 end

@@ -82,7 +82,8 @@ defmodule Firestone do
       raise "game ended"
     end
 
-    card_drawn = Actions.draw_card(next_turn)
+    next_player = State.current_player(next_turn)
+    card_drawn = Actions.draw_card(next_turn, next_player)
 
     if Predicates.end_game?(card_drawn) do
       raise "game ended"

@@ -9,8 +9,8 @@ defmodule Firestone.Engine.State do
   Turn specific values work:
       iex> create_game([], turn: %{cards_played: ["Imp"]})
       ...> |> get_in([:turn, :cards_played])
-      ...> |> Enum.map(& &1.game_id)
-      ["EX1_598"]
+      ...> |> Enum.map(& &1.name)
+      ["Imp"]
 
   Board shorthands work:
       iex> create_game [%{board: ["Imp", %{game_id: "EX1_598"}, %{name: "Imp"}]}]
